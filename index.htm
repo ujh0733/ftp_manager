@@ -1,0 +1,84 @@
+<?php include "./include/head.html"; ?>
+
+<script>
+    function ftp_connect(){
+        if(validate_chk()){
+            var params = $("#ftp_login_frm").serialize();
+
+            $.ajax({
+                url: "./ftp/ftp_connect.php",
+                type: "POST",
+                data: params,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function(data){
+                    alert(data);
+                }
+            })
+        }
+    }
+
+    function validate_chk(){
+        var ftp_host = $("#ftp_host").val("192.168.29.128");
+        var ftp_user = $("#ftp_user").val("ftp_manager");
+        var ftp_pass = $("#ftp_pass").val("ftp_manager");
+
+        if(ftp_host && ftp_user && ftp_pass){
+            return true;
+        }else{
+            $("#ftp_login_frm").addClass("was-validated");
+            return false;
+        }
+    }
+</script>
+
+<body class="container mt-5">
+    <h1 class="text-center">Web FTP Manager</h1>
+
+    <form id="ftp_login_frm" mehod="post" novalidate>
+        <div id="main_login" class="container-sm mt-5">
+            <div class="input-group has-validation mt-2">
+                <span class="input-group-text p20 w55">
+                    <i class="fa-solid fa-location-dot"></i>
+                </span>
+                
+                <input type="text" id="ftp_host" name="ftp_host" class="form-control" placeholder="IP" required>
+
+                <div class="invalid-feedback">
+                    접속할 FTP서버의 IP주소를 입력해 주세요.
+                </div>
+            </div>
+
+            <div class="input-group has-validation mt-2">
+                <span class="input-group-text p20 w55">
+                    <i class="fa-solid fa-id-card"></i>
+                </span>
+               
+                <input type="text" id="ftp_user" name="ftp_user" class="form-control" placeholder="Account" required>
+
+                <div class="invalid-feedback">
+                    접속할 FTP 서버의 계정을 입력해 주세요.
+                </div>
+            </div>
+
+            <div class="input-group has-validation mt-2">
+                <div class="input-group has-validation">
+                    <span class="input-group-text P20 w55">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+
+                    <input type="password" id="ftp_pass" name="ftp_pass" class="form-control" placeholder="Password" required>
+
+                    <div class="invalid-feedback">
+                        접속할 FTP 서버의 패스워드를 입력해 주세요.
+                    </div>
+                </div>
+            </div>
+                        
+            <div class="d-grid gap-2 col-6 mx-auto mt-5">
+                <button class="btn btn-primary" type="button" onclick="ftp_connect()" formmethod="post">접속</button>
+            </div>
+        </div>
+    </form>
+</body>
+
+<?php include "./include/footer.html"; ?>
