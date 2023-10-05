@@ -1,12 +1,13 @@
 <?php
     include "../common.php";
     include "./ftp_controller.php";
+    
+    $ftp_host = $tools->requestValue("ftp_host");
+    $ftp_user = $tools->requestValue("ftp_user");
+    $ftp_pass = $tools->requestValue("ftp_pass");
 
-    print_R($_POST);
+    $ftp_controller = new Ftp_Controller();
+    $result = $ftp_controller->ftp_connect($ftp_host, $ftp_user, $ftp_pass);
 
-    $ftp_host = requestValue("ftp_host");
-    $ftp_user = requestValue("ftp_user");
-    $ftp_pass = requestValue("ftp_pass");
-
-    new Ftp_Controller($ftp_host, $ftp_user, $ftp_pass);
+    return $result;
 ?>
