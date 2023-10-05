@@ -1,6 +1,6 @@
 <?php
-    error_reporting( E_ALL );
-    ini_set( "display_errors", 0 );
+    //error_reporting( E_ALL );
+    //ini_set( "display_errors", 0 );
 
     @session_start();
     define("ROOT_DIR", $_SERVER["DOCUMENT_ROOT"]);

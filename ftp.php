@@ -8,16 +8,19 @@
         $ftp_pass = $_SESSION["ftp_pass"];
 
         $ftp_controller = new Ftp_Controller();
-
-        print_r($ftp_controller);
     }else{
         $tools->alert_location("로그인을 진행헤 주세요", "./index.htm");
     }
 ?>
 
 <body class="container mt-5">
-    <div style="border: 1px solid red; width:450px; height:550px;">
-
+    <div style="border: 1px solid red; width:650px; height:650px;">
+       
+        <?php
+            $file_list = $ftp_controller->get_file_list();
+            print_r($file_list);
+        ?>
+        
     </div>
 </body>
 
