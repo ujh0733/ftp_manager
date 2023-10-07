@@ -2,6 +2,7 @@
     class Ftp_Controller{
         private $sftp;
         private $ftp_host, $ftp_user, $ftp_pass;
+        private $user_root_dir;
 
         public function __construct(){
             $ftp_host = $_SESSION["ftp_host"];
@@ -72,15 +73,18 @@
 
         function get_file_list(){
             $ftp_user = $this->ftp_user;
-
-            $user_root_dir = "/home/${ftp_user}";
-            //$user_root_dir = "/etc";
             
-            $dir_arr = $this->dir_to_array($user_root_dir);
+            //기본 linux user 경로로 설정
+            $this->user_root_dir = "/home/${ftp_user}";            
+            $dir_arr = $this->dir_to_array($this->user_root_dir);
             
+            //$dir_arr = $this->record_sort($dir_arr, "path", false);
+            /*
             echo "<pre>";
             print_r($dir_arr);
             echo "</pre>";
+            */
+            return $dir_arr;
         }
         
         /*
@@ -113,26 +117,45 @@
         }
 
         //전체 디렉토리 구조 가져오기
-        function dir_to_array($dir, $i=0) {
+        function dir_to_array($dir, $i=0, $parent="root") {
             $i++;
             $array_items = array();
             
+            if($dir == $this->user_root_dir){
+                $file_stat = $this->get_file_stat($dir);
+                $file_size = $this->file_size_convert($file_stat["size"]);
+
+                $array_items[] = array_merge($array_items, array("id" => "root",
+                                                                "parent" => "#",
+                                                                //"dd" => 0,
+                                                                //"path" => $this->user_root_dir,
+                                                                "text" => $this->ftp_user,
+                                                                "type" => "root_dir",
+                                                                //"size" => $file_size,
+                                                                ));
+            }
+
             if ($handle = opendir("ssh2.sftp://".$this->sftp.$dir)) {
                 while (false !== ($file = readdir($handle))) {
                     if (substr($file, 0, 1) != "."){                        
                         $file_stat = $this->get_file_stat($dir."/".$file);
                         $file_size = $this->file_size_convert($file_stat["size"]);
-                        //파일 이름 디렉토리 뒤에 부착
-                        $array_items[] = array("dd" => $i,
-                                                "path" => $dir."/".$file,
-                                                "name" => preg_replace("/\/\//si", "/", $file),
-                                                "type" => $file_stat["type"],
-                                                "size" => $file_size);
-
                         
+                        $id = bin2hex(random_bytes(4));
+
+                        //파일 정보 배열화
+                        $array_items[] = array("id" => $id,
+                                                "parent" => $parent,
+                                                //"dd" => $i,
+                                                //"path" => $dir."/".$file,
+                                                "text" => preg_replace("/\/\//si", "/", $file),
+                                                "type" => $file_stat["type"],
+                                                //"size" => $file_size,
+                                                );
+
                         if ( $file_stat["type"] == "dir" ) {
-                            //배열 끝에 추가되도록 추가
-                            $array_items = array_merge($array_items, $this->dir_to_array($dir. "/" . $file, $i));
+                            //배열 끝에 추가
+                            $array_items = array_merge($array_items, $this->dir_to_array($dir. "/" . $file, $i, $id));
                         }
                     }
                 }
@@ -150,6 +173,20 @@
                 return (round($size/pow(1024, ($i = floor(log($size, 1024)))), 2). " ".$unit[$i]);
             else
                 return $size." ".$unit[0];
+        }
+
+        //다중배열정렬
+        function record_sort($records, $field, $reverse=false){
+            $hash = array();
+            foreach($records as $record){
+                $hash[$record[$field]] = $record;
+            }
+            ksort($hash);
+            $records = array();
+            foreach($hash as $record){
+                $records []= $record;
+            }
+            return $records;
         }
     }
 ?>
