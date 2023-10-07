@@ -1,6 +1,6 @@
 <?php
     class Ftp_Controller{
-        private $ftp;
+        private $sftp;
         private $ftp_host, $ftp_user, $ftp_pass;
 
         public function __construct(){
@@ -16,7 +16,7 @@
                 $connection = ssh2_connect($ftp_host, 22);
                 $ftp_auth = ssh2_auth_password($connection, $ftp_user, $ftp_pass);
 
-                $this->ftp = $connection;
+                $this->sftp = ssh2_sftp($connection);
             }
         }
         
@@ -73,64 +73,66 @@
         function get_file_list(){
             $ftp_user = $this->ftp_user;
 
-            $sftp = ssh2_sftp($this->ftp);
-
             $user_root_dir = "/home/${ftp_user}";
-           // $user_root_dir = "/etc";
-            $dh = opendir("ssh2.sftp://${sftp}${user_root_dir}");
+            //$user_root_dir = "/etc";
             
+            $dir_arr = $this->dir_to_array($user_root_dir);
             
-            while (($file = readdir($dh)) !== false) {
-                if (substr($file, 0, 1) != "."){
-                    print_r($file);
-                    echo "<BR>";
-                    $file_type = $this->get_file_stat($user_root_dir."/".$file, "type");
-                    echo $file_type;
-                    echo "<BR>";
-                    echo "<BR>";
-                }
-            }
-            
-            //$view_dir = directoryToArray($user_root_dir,1);
+            echo "<pre>";
+            print_r($dir_arr);
+            echo "</pre>";
         }
         
         /*
             파일 정보 가져오기
             리턴정보 -> https://www.php.net/manual/en/function.stat.php
         */
-        function get_file_stat($path, $type){
-            $sftp = ssh2_sftp($this->ftp);
-            $file_stat = stat("ssh2.sftp://${sftp}${path}");
+        function get_file_stat($path){
+            $file_stat = stat("ssh2.sftp://".$this->sftp.$path);
+            
+            //file_stat의 mode 리턴값을 8진수로 변환시켜 파일형식 파악
+            $file_mode = str_pad(decoct($file_stat["mode"]), 7 ,0, STR_PAD_LEFT);
+            $file_type_cut = substr($file_mode, 0, 3);
+            
+            //mode 리턴값별 파일 타입 배열
+            $type_arr = array("010" => "file",
+                            "004" => "dir",
+                            "014" => "socket",
+                            "012" => "link",
+                            "006" => "block",
+                            "002" => "msg_device",
+                            "001" => "fifo",
+                            "000" => "symlink");
 
-            if($type == "size"){
-                return $file_stat["size"];
-            }else if($type == "type"){
-                //file_stat의 mode 리턴값을 8진수로 변환시켜 파일형식 파악
-                $file_stat = str_pad(decoct($file_stat["mode"]), 7 ,0, STR_PAD_LEFT);
-                $file_type_cut = substr($file_stat, 0, 3);
-                
-                //mode 리턴값별 파일 타입 배열
-                $type_arr = array("010" => "file", "004" => "dir", "014" => "socket", "012" => "link", "006" => "block", "002" => "msg_device", "001" => "fifo");
+            $file_info = array(
+                "size" => $file_stat["size"],
+                "type" => $type_arr[$file_type_cut]
+            );
 
-                return $type_arr["${file_type_cut}"];
-            }
+            return $file_info;
         }
 
-        //디렉토리 구조 가져오기
+        //전체 디렉토리 구조 가져오기
         function dir_to_array($dir, $i=0) {
             $i++;
             $array_items = array();
-            if ($handle = opendir($dir)) {
+            
+            if ($handle = opendir("ssh2.sftp://".$this->sftp.$dir)) {
                 while (false !== ($file = readdir($handle))) {
-                    //경로 기호 제거
-                    if ($file != "." && $file != "..") {
+                    if (substr($file, 0, 1) != "."){                        
+                        $file_stat = $this->get_file_stat($dir."/".$file);
+                        $file_size = $this->file_size_convert($file_stat["size"]);
                         //파일 이름 디렉토리 뒤에 부착
-                        if (is_dir($dir. "/" . $file)) {
-                            //트리구조에 파일 뿌리기 위한 item화
-                            $file = $file;
-                            $array_items[] = array("dd"=>$i, "dir"=>$dir. "/" . $file, "file"=>preg_replace("/\/\//si", "/", $file));
+                        $array_items[] = array("dd" => $i,
+                                                "path" => $dir."/".$file,
+                                                "name" => preg_replace("/\/\//si", "/", $file),
+                                                "type" => $file_stat["type"],
+                                                "size" => $file_size);
+
+                        
+                        if ( $file_stat["type"] == "dir" ) {
                             //배열 끝에 추가되도록 추가
-                            $array_items = array_merge($array_items, dir_to_array($dir. "/" . $file, $i));
+                            $array_items = array_merge($array_items, $this->dir_to_array($dir. "/" . $file, $i));
                         }
                     }
                 }
@@ -138,6 +140,16 @@
                 closedir($handle);
             }
             return $array_items;
+        }
+
+        //용량 변환
+        function file_size_convert($size){
+            $unit = array("Byte", "Kb", "Mb", "Gb");
+
+            if($size > 0)
+                return (round($size/pow(1024, ($i = floor(log($size, 1024)))), 2). " ".$unit[$i]);
+            else
+                return $size." ".$unit[0];
         }
     }
 ?>
