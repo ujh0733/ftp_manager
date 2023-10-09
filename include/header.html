@@ -1,10 +1,3 @@
-<div id="header" class="container-sm position-relative">
+<div id="header" class="container-sm">
     <h1>헤더</h1>
-    <?php
-        if($_SESSION["ftp_host"] && $_SESSION["ftp_user"] && $_SESSION["ftp_pass"]){
-    ?>
-        <button class="btn btn-danger position-absolute top-0 end-0" onclick="ftp_logout()">로그아웃</button>
-    <?php
-        }
-    ?>
 </div>

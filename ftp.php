@@ -11,36 +11,22 @@
         $file_list = $ftp_controller->get_file_list();
 
         $dir_json = json_encode($file_list);
-
-        //echo "<pre>";
-        //print_r($dir_json);
-        //echo "</pre>";
     }else{
         $tools->alert_location("로그인을 진행헤 주세요", "./index.htm");
     }
 ?>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
 
 <script>
     $(function (){
-        $tree = $("#tree");
         create_tree();
-        $("#close_btn").hide();
-
-        /*
-        $tree.bind('select_node.jstree', function(e, data) {
-            //append html data code
-            var $li = data.instance.get_node(data.node, true);
-            $li.append('<span>some elements</span>');
-        });
-        */
     });
     
-    
     function create_tree(){
-        $tree.jstree({ 
+        $('#tree').jstree({ 
             'plugins' : ["types"],
             'types': {
                 '#':{
@@ -54,46 +40,16 @@
                 }
             },
             'core' : {
-                'data' : <?= $dir_json ?>
+                'data' : <?= $dir_json ?>,
             },
         })
-    }
 
-    function node_open(){
-        $tree.jstree("open_all");
-        $("#open_btn").hide();
-        $("#close_btn").show();
-    }
-
-    function node_close(){
-        $tree.jstree("close_all");
-        $("#open_btn").show();
-        $("#close_btn").hide();
-    }
-
-    function file_rename(){
-        alert('file_rename');
-    }
-
-    function file_del(){
-        alert('file_del');
-    }
-
-    function file_add(){
-        alert('file_add');
+       
     }
 </script>
-<body class="container mt-5 position-absolute top-50 start-50 translate-middle">
-    <?php
-        include "./include/header.html";
-    ?>
+<body class="container mt-5">
     <div style="border: 1px solid red; width:650px; height:650px;">
-        <div class="btn_group">
-            <button id="open_btn" class="btn btn-primary float-end" onclick="node_open();">전체열기</button>
-            <button id="close_btn" class="btn btn-secondary float-end" onclick="node_close();">전체닫기</button>
-        </div>
-
-        <div id="tree" class="mt-1">
+        <div id="tree">
 
         </div>
     </div>

@@ -41,22 +41,6 @@
             }
         }
 
-        public function ftp_logout(){
-            $result_msg = array("code" => "", "msg" => "", "url" => "");
-
-            if(ssh2_disconnect($this->sftp)){
-                $result_msg["code"] = "ok";
-                $result_msg["msg"] = "정상적으로 로그아웃 되었습니다.";
-                $result_msg["url"] = "index.htm";
-            }else{
-                $result_msg["code"] = "fail";
-                $result_msg["msg"] = "비정상적인 접근입니다.";
-                $result_msg["url"] = "ftp.htm";
-            }
-
-            echo json_encode($result_msg);
-        }
-
         public function ftp_connect($ftp_host, $ftp_user, $ftp_pass){
             $ori_socket_time = ini_get('default_socket_timeout');
             //응답 시간을 줄이기위한 임시 timeout
@@ -69,7 +53,7 @@
                 if(ssh2_auth_password($connection, $ftp_user, $ftp_pass)){
                     $result_msg["code"] = "ok";
                     $result_msg["msg"] = "로그인 성공";
-                    $result_msg["url"] = "ftp.htm";
+                    $result_msg["url"] = "ftp.php";
 
                     $_SESSION["ftp_host"] = $ftp_host;
                     $_SESSION["ftp_user"] = $ftp_user;
@@ -143,13 +127,11 @@
 
                 $array_items[] = array_merge($array_items, array("id" => "root",
                                                                 "parent" => "#",
-                                                                "path" => $this->user_root_dir,
+                                                                //"dd" => 0,
+                                                                //"path" => $this->user_root_dir,
                                                                 "text" => $this->ftp_user,
                                                                 "type" => "root_dir",
-                                                                "size" => $file_size,
-                                                                "state" => array(
-                                                                    "opened" => true,
-                                                                )
+                                                                //"size" => $file_size,
                                                                 ));
             }
 
@@ -159,23 +141,16 @@
                         $file_stat = $this->get_file_stat($dir."/".$file);
                         $file_size = $this->file_size_convert($file_stat["size"]);
                         
-                        $add_btn = "<div class='ms-5 float-end'>";
-                        $add_btn .= "<a onclick='file_rename()' class='ms-1'><i class='fa-solid fa-pen-to-square'></i></a>";
-                        $add_btn .= "<a onclick='file_del()' class='ms-1'><i class='fa-solid fa-trash'></i></a>";
-                        if ( $file_stat["type"] == "dir" ) {
-                            $add_btn .= "<a onclick='file_add()' class='ms-1'><i class='fa-solid fa-upload'></i></a>";
-                        }
-                        $add_btn .= "</div>";
-                        
                         $id = bin2hex(random_bytes(4));
 
                         //파일 정보 배열화
                         $array_items[] = array("id" => $id,
                                                 "parent" => $parent,
-                                                "path" => $dir."/".$file,
-                                                "text" => preg_replace("/\/\//si", "/", $file).$add_btn,
+                                                //"dd" => $i,
+                                                //"path" => $dir."/".$file,
+                                                "text" => preg_replace("/\/\//si", "/", $file),
                                                 "type" => $file_stat["type"],
-                                                "size" => $file_size,
+                                                //"size" => $file_size,
                                                 );
 
                         if ( $file_stat["type"] == "dir" ) {
