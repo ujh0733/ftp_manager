@@ -2,6 +2,7 @@
 
 <script>
     function ftp_connect(){
+        get_loader();
         if(validate_chk()){
             var params = $("#ftp_login_frm").serialize();
 
@@ -13,9 +14,11 @@
                 success: function(data){
                     var data = JSON.parse(data);
                     alert(data["msg"]);
+                    
+                    del_loader();
 
                     if(data["code"] == "ok"){
-                        location.href = data["url"];
+                       location.href = data["url"];
                     }
                 }
             })
@@ -36,7 +39,7 @@
     }
 </script>
 
-<body class="container mt-5">
+<body class="container mt-5 position-absolute top-50 start-50 translate-middle">
     <h1 class="text-center">Web FTP Manager</h1>
 
     <form id="ftp_login_frm" mehod="post" novalidate>
@@ -81,6 +84,7 @@
                 <button class="btn btn-primary" type="button" onclick="ftp_connect()" formmethod="post">접속</button>
             </div>
         </div>
+        
     </form>
 </body>
 
