@@ -11,3 +11,16 @@ function ftp_logout(){
             }
     });
 }
+
+function node_open(){
+    $tree.jstree("open_all");
+    $("#open_btn").hide();
+    $("#close_btn").show();
+}
+
+function node_close(){
+    $tree.jstree("close_all");
+    $("#open_btn").show();
+    $("#close_btn").hide();
+}
+

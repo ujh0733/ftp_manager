@@ -140,11 +140,14 @@
             if($dir == $this->user_root_dir){
                 $file_stat = $this->get_file_stat($dir);
                 $file_size = $this->file_size_convert($file_stat["size"]);
+                
+                $add_btn = "<a onclick='file_jobs(\"upload\", \"#\")' class='ms-1' title='업로드'><i class='fa-solid fa-upload'></i></a>";
+                $add_btn .= "<a onclick='file_jobs(\"mkdir\", \"#\")' class='ms-1' title='폴더추가'><i class='fa-solid fa-folder-plus'></i></a>";
 
                 $array_items[] = array_merge($array_items, array("id" => "root",
                                                                 "parent" => "#",
                                                                 "path" => $this->user_root_dir,
-                                                                "text" => $this->ftp_user,
+                                                                "text" => $this->ftp_user.$add_btn,
                                                                 "type" => "root_dir",
                                                                 "size" => $file_size,
                                                                 "state" => array(
@@ -155,19 +158,24 @@
 
             if ($handle = opendir("ssh2.sftp://".$this->sftp.$dir)) {
                 while (false !== ($file = readdir($handle))) {
-                    if (substr($file, 0, 1) != "."){                        
+                    if (substr($file, 0, 1) != "."){          
+                        $id = bin2hex(random_bytes(4));              
+
                         $file_stat = $this->get_file_stat($dir."/".$file);
                         $file_size = $this->file_size_convert($file_stat["size"]);
                         
                         $add_btn = "<div class='ms-5 float-end'>";
-                        $add_btn .= "<a onclick='file_rename()' class='ms-1'><i class='fa-solid fa-pen-to-square'></i></a>";
-                        $add_btn .= "<a onclick='file_del()' class='ms-1'><i class='fa-solid fa-trash'></i></a>";
+                        $add_btn .= "<a onclick='file_jobs(\"rename\", \"${id}\")' class='ms-1' title='수정'><i class='fa-solid fa-pen-to-square'></i></a>";
+                        $add_btn .= "<a onclick='file_jobs(\"delete\", \"${id}\")' class='ms-1' title='삭제'><i class='fa-solid fa-trash'></i></a>";
                         if ( $file_stat["type"] == "dir" ) {
-                            $add_btn .= "<a onclick='file_add()' class='ms-1'><i class='fa-solid fa-upload'></i></a>";
+                            $add_btn .= "<a onclick='file_jobs(\"upload\", \"${id}\")' class='ms-1' title='업로드'><i class='fa-solid fa-upload'></i></a>";
+                            $add_btn .= "<a onclick='file_jobs(\"mkdir\", \"${id}\")' class='ms-1' title='폴더추가'><i class='fa-solid fa-folder-plus'></i></a>";
                         }
+                        $add_btn .= "<a onclick='file_jobs(\"download\", \"${id}\")' class='ms-1' title='다운로드로드'><i class='fa-solid fa-download'></i></a>";
+                        
                         $add_btn .= "</div>";
                         
-                        $id = bin2hex(random_bytes(4));
+                        
 
                         //파일 정보 배열화
                         $array_items[] = array("id" => $id,
@@ -212,6 +220,16 @@
                 $records []= $record;
             }
             return $records;
+        }
+
+        //이름 변경
+        function ssh2_rename($from, $to){
+            return ssh2_sftp_rename($this->sftp, $from, $to);
+        }
+
+        //디렉토리 추가
+        function ssh2_mkdir($path, $name){
+            return ssh2_sftp_mkdir($this->sftp, $path."/".$name);
         }
     }
 ?>
