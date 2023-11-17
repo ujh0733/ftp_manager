@@ -39,4 +39,14 @@
     padding:5px;
 }
 
-#tree > ul > li 
+.loader_background2{
+    width: 100%;
+    height: 100%;
+    background-color: #dedede;
+}
+
+.loader_background3{
+    width: 100%;
+    height: 100%;
+    background-color: #dedede;
+}
