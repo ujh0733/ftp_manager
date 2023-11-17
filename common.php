@@ -8,6 +8,8 @@
     include ROOT_DIR."/database/db.php";
     include ROOT_DIR."/tools.php";
 
+    define(TEST, "TEST");
+    
     $db = new DbPdo();
     $tools = new tools();
 ?>
