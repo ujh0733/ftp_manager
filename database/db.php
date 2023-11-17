@@ -30,5 +30,9 @@
 			}
 			return $result;
         }
+
+		public function test(){
+			return "test";
+		}
     }
 ?>
