@@ -32,7 +32,10 @@
         }
 
 		public function test(){
-			return "test";
+			return "test 222";
+		}
+		public function test22(){
+			return "test 222";
 		}
     }
 ?>
