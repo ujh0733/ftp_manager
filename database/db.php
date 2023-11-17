@@ -32,10 +32,14 @@
         }
 
 		public function test(){
+<<<<<<< HEAD
 			return "test 222";
 		}
 		public function test22(){
 			return "test 222";
+=======
+			return "test";
+>>>>>>> parent of 87b4bbf (test)
 		}
     }
 ?>

@@ -8,6 +8,11 @@
     include ROOT_DIR."/database/db.php";
     include ROOT_DIR."/tools.php";
 
+<<<<<<< HEAD
+=======
+    define(TEST, "TEST");
+    
+>>>>>>> parent of 87b4bbf (test)
     $db = new DbPdo();
     $tools = new tools();
 ?>
