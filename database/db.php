@@ -33,6 +33,7 @@
 
 		public function test(){
 <<<<<<< HEAD
+<<<<<<< HEAD
 			return "test 222";
 		}
 		public function test22(){
@@ -40,6 +41,9 @@
 =======
 			return "test";
 >>>>>>> parent of 87b4bbf (test)
+=======
+			return "test";
+>>>>>>> 0369019f32c6d584fddb4ead9a11c37ee3052401
 		}
     }
 ?>
